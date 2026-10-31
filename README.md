@@ -11,4 +11,4 @@ The game ships with 460 per tenant per day. Option 1 sets it to 69. Option 2 set
 3. Choose 1 to lower the rent, or 2 to restore the original value.
 4. Load City, Egypt, or Florida again.
 
-It finds the game folder on its own, in Steam and on the local drives. A file that already has the chosen value is left as it is.
+It finds the game folder on its own, in Steam and on the local drives.
