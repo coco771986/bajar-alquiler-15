@@ -1,14 +1,14 @@
-# Alquiler de parcelas al 15 por ciento
+# Plot rent at 15 percent
 
-Baja el alquiler que cobran los inquilinos en Car Park Capital al 15 por ciento del valor original, o lo devuelve al valor del juego.
+Lowers the rent tenants pay in Car Park Capital to 15 percent of the original value, or restores the game's original rent.
 
-El juego trae 460 por inquilino por dia. La opcion 1 lo deja en 69. La opcion 2 lo vuelve a 460. El precio de compra del terreno no cambia.
+The game ships with 460 per tenant per day. Option 1 sets it to 69. Option 2 sets it back to 460. The land purchase price does not change.
 
-## Como usarlo
+## How to use it
 
-1. Descarga `bajar-alquiler-15.bat`.
-2. Abri el archivo con doble clic.
-3. Elegi 1 para bajar el alquiler, o 2 para volver al original.
-4. Volve a abrir City, Egypt o Florida.
+1. Download `bajar-alquiler-15.bat`.
+2. Double-click the file.
+3. Choose 1 to lower the rent, or 2 to restore the original value.
+4. Load City, Egypt, or Florida again.
 
-Busca la carpeta del juego solo, en Steam y en los discos locales. Si un archivo ya tiene el valor elegido, no lo vuelve a tocar.
+It finds the game folder on its own, in Steam and on the local drives. A file that already has the chosen value is left as it is.

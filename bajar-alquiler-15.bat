@@ -1,12 +1,12 @@
 @echo off
 setlocal EnableExtensions
-title Alquiler de parcelas
+title Plot rent
 set "MODE=%~1"
 if /I "%MODE%"=="nopause" set "MODE="
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$p='%~f0'; $c=[IO.File]::ReadAllText($p); $k='###POWERSHELL'+'###'; $i=$c.IndexOf($k); if($i -lt 0){ Write-Output 'Falta el bloque de PowerShell'; exit 1 }; Invoke-Expression $c.Substring($i+$k.Length)"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$p='%~f0'; $c=[IO.File]::ReadAllText($p); $k='###POWERSHELL'+'###'; $i=$c.IndexOf($k); if($i -lt 0){ Write-Output 'Missing PowerShell block'; exit 1 }; Invoke-Expression $c.Substring($i+$k.Length)"
 set "RC=%ERRORLEVEL%"
 echo.
-if not "%RC%"=="0" echo Termino con error %RC%.
+if not "%RC%"=="0" echo Finished with error %RC%.
 if /I "%~1"=="nopause" exit /b %RC%
 if /I "%~2"=="nopause" exit /b %RC%
 pause
@@ -15,7 +15,7 @@ exit /b %RC%
 ###POWERSHELL###
 $ErrorActionPreference = 'Stop'
 
-# 460 es el alquiler original del juego. 69 es el 15 por ciento.
+# 460 is the game's original rent. 69 is 15 percent.
 $Stock = 'dailyRentPerTenant = 460'
 $Reduced = 'dailyRentPerTenant = 69'
 
@@ -102,26 +102,26 @@ function Get-LibraryPaths {
 
 $mode = $env:MODE
 if ([string]::IsNullOrWhiteSpace($mode)) {
-  Write-Output '1. Bajar el alquiler al 15 por ciento (69 por inquilino)'
-  Write-Output '2. Volver al valor original del juego (460 por inquilino)'
-  $mode = Read-Host 'Elegi 1 o 2'
+  Write-Output '1. Lower tenant rent to 15 percent (69 per tenant)'
+  Write-Output '2. Restore the original game value (460 per tenant)'
+  $mode = Read-Host 'Choose 1 or 2'
 }
 $mode = "$mode".Trim().ToLowerInvariant()
 
-if ($mode -eq '2' -or $mode -eq 'revertir' -or $mode -eq 'original') {
+if ($mode -eq '2' -or $mode -eq 'restore' -or $mode -eq 'revert' -or $mode -eq 'original') {
   $Old = $Reduced
   $New = $Stock
-  $label = 'valor original (460)'
-} elseif ($mode -eq '1' -or $mode -eq 'aplicar' -or $mode -eq 'bajar') {
+  $label = 'original value (460)'
+} elseif ($mode -eq '1' -or $mode -eq 'apply' -or $mode -eq 'lower') {
   $Old = $Stock
   $New = $Reduced
-  $label = '15 por ciento (69)'
+  $label = '15 percent (69)'
 } else {
-  Write-Output 'Opcion no valida. Usa 1 para bajar o 2 para volver al original.'
+  Write-Output 'Invalid choice. Use 1 to lower rent or 2 to restore the original.'
   exit 1
 }
 
-Write-Output 'Buscando Car Park Capital...'
+Write-Output 'Searching for Car Park Capital...'
 $Game = $null
 foreach ($lib in (Get-LibraryPaths)) {
   $candidate = Join-Path $lib 'steamapps\common\Car Park Capital'
@@ -132,12 +132,12 @@ foreach ($lib in (Get-LibraryPaths)) {
 }
 
 if (-not $Game) {
-  Write-Output 'No encontre Car Park Capital en Steam ni en los discos locales.'
+  Write-Output 'Car Park Capital was not found in Steam or on the local drives.'
   exit 1
 }
 
-Write-Output ('Juego: ' + $Game)
-Write-Output ('Accion: ' + $label)
+Write-Output ('Game: ' + $Game)
+Write-Output ('Action: ' + $label)
 Write-Output ''
 
 $base = Join-Path $Game 'assets\scripts\entities\simulation\placeables'
@@ -149,7 +149,7 @@ $problems = 0
 foreach ($rel in $RelFiles) {
   $path = Join-Path $base $rel
   if (-not (Test-Path -LiteralPath $path)) {
-    Write-Output ('FALTA  ' + $rel)
+    Write-Output ('MISSING  ' + $rel)
     $problems++
     continue
   }
@@ -159,21 +159,21 @@ foreach ($rel in $RelFiles) {
   if ($oldCount -eq 1) {
     $updated = $text.Replace($Old, $New)
     [IO.File]::WriteAllText($path, $updated, $enc)
-    Write-Output ('OK     ' + $rel)
+    Write-Output ('OK       ' + $rel)
     $changed++
   } elseif ($oldCount -eq 0 -and $newCount -ge 1) {
-    Write-Output ('YA     ' + $rel)
+    Write-Output ('ALREADY  ' + $rel)
     $already++
   } else {
-    Write-Output ('RARO   ' + $rel + '  (origen=' + $oldCount + ', destino=' + $newCount + ')')
+    Write-Output ('UNEXPECTED  ' + $rel + '  (source=' + $oldCount + ', target=' + $newCount + ')')
     $problems++
   }
 }
 
 Write-Output ''
-Write-Output ('Cambiados: ' + $changed)
-Write-Output ('Ya estaban asi: ' + $already)
-Write-Output ('Problemas: ' + $problems)
-Write-Output 'El precio de compra del terreno no cambia.'
+Write-Output ('Changed: ' + $changed)
+Write-Output ('Already set: ' + $already)
+Write-Output ('Problems: ' + $problems)
+Write-Output 'The land purchase price is unchanged.'
 if ($problems -gt 0) { exit 1 }
 exit 0
