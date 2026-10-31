@@ -6,7 +6,7 @@ The game ships with 460 per tenant per day. Option 1 sets it to 69. Option 2 set
 
 ## How to use it
 
-1. Download `bajar-alquiler-15.bat`.
+1. Download `bajar-alquiler-15.bat`. The same script is also in `bajar-alquiler-15.txt`.
 2. Double-click the file.
 3. Choose 1 to lower the rent, or 2 to restore the original value.
 4. Load City, Egypt, or Florida again.
