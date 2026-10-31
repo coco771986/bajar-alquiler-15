@@ -1,20 +1,23 @@
 @echo off
 setlocal EnableExtensions
-title Alquiler de parcelas al 15 por ciento
+title Alquiler de parcelas
+set "MODE=%~1"
+if /I "%MODE%"=="nopause" set "MODE="
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$p='%~f0'; $c=[IO.File]::ReadAllText($p); $k='###POWERSHELL'+'###'; $i=$c.IndexOf($k); if($i -lt 0){ Write-Output 'Falta el bloque de PowerShell'; exit 1 }; Invoke-Expression $c.Substring($i+$k.Length)"
 set "RC=%ERRORLEVEL%"
 echo.
 if not "%RC%"=="0" echo Termino con error %RC%.
 if /I "%~1"=="nopause" exit /b %RC%
+if /I "%~2"=="nopause" exit /b %RC%
 pause
 exit /b %RC%
 
 ###POWERSHELL###
 $ErrorActionPreference = 'Stop'
 
-# Alquiler diario por inquilino. El juego trae 460. 69 es el 15 por ciento.
-$Old = 'dailyRentPerTenant = 460'
-$New = 'dailyRentPerTenant = 69'
+# 460 es el alquiler original del juego. 69 es el 15 por ciento.
+$Stock = 'dailyRentPerTenant = 460'
+$Reduced = 'dailyRentPerTenant = 69'
 
 $RelFiles = @(
   'houses\Apartments0.lua',
@@ -97,6 +100,27 @@ function Get-LibraryPaths {
   return $paths
 }
 
+$mode = $env:MODE
+if ([string]::IsNullOrWhiteSpace($mode)) {
+  Write-Output '1. Bajar el alquiler al 15 por ciento (69 por inquilino)'
+  Write-Output '2. Volver al valor original del juego (460 por inquilino)'
+  $mode = Read-Host 'Elegi 1 o 2'
+}
+$mode = "$mode".Trim().ToLowerInvariant()
+
+if ($mode -eq '2' -or $mode -eq 'revertir' -or $mode -eq 'original') {
+  $Old = $Reduced
+  $New = $Stock
+  $label = 'valor original (460)'
+} elseif ($mode -eq '1' -or $mode -eq 'aplicar' -or $mode -eq 'bajar') {
+  $Old = $Stock
+  $New = $Reduced
+  $label = '15 por ciento (69)'
+} else {
+  Write-Output 'Opcion no valida. Usa 1 para bajar o 2 para volver al original.'
+  exit 1
+}
+
 Write-Output 'Buscando Car Park Capital...'
 $Game = $null
 foreach ($lib in (Get-LibraryPaths)) {
@@ -113,6 +137,7 @@ if (-not $Game) {
 }
 
 Write-Output ('Juego: ' + $Game)
+Write-Output ('Accion: ' + $label)
 Write-Output ''
 
 $base = Join-Path $Game 'assets\scripts\entities\simulation\placeables'
@@ -140,14 +165,14 @@ foreach ($rel in $RelFiles) {
     Write-Output ('YA     ' + $rel)
     $already++
   } else {
-    Write-Output ('RARO   ' + $rel + '  (460=' + $oldCount + ', 69=' + $newCount + ')')
+    Write-Output ('RARO   ' + $rel + '  (origen=' + $oldCount + ', destino=' + $newCount + ')')
     $problems++
   }
 }
 
 Write-Output ''
 Write-Output ('Cambiados: ' + $changed)
-Write-Output ('Ya estaban en 69: ' + $already)
+Write-Output ('Ya estaban asi: ' + $already)
 Write-Output ('Problemas: ' + $problems)
 Write-Output 'El precio de compra del terreno no cambia.'
 if ($problems -gt 0) { exit 1 }
